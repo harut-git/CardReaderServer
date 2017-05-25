@@ -1,5 +1,13 @@
+import platform
+
+import os
+import sys
+print sys.version_info
+os.environ.pop('GEVENT_LOOP', None)
+
 from gevent.wsgi import WSGIServer
 import json
+
 
 available_modules = ["check", "get", "set", "update"]
 available_methods = ["login", "token", "email", "files", "registration", "download", "new_folder", "new_player"]
@@ -30,4 +38,5 @@ def application(environ, start_response):
     return json.dumps(response)
 
 
-WSGIServer(('', 8000), application).serve_forever()
+print 123132
+WSGIServer(('', 9092), application).serve_forever()

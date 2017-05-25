@@ -1,3 +1,6 @@
+import os
+
+os.environ.pop('GEVENT_LOOP', None)
 from ws4py.websocket import WebSocket
 from ws4py.server.geventserver import WSGIServer
 from ws4py.server.wsgiutils import WebSocketWSGIApplication
@@ -26,7 +29,7 @@ class MyWebSocket(WebSocket):
         print "response: ", response
         self.send(json.dumps(response), message.is_binary)
         print self.environ
-server = WSGIServer(('localhost', 9090), WebSocketWSGIApplication(handler_cls=MyWebSocket))
+server = WSGIServer(('localhost', 8282), WebSocketWSGIApplication(handler_cls=MyWebSocket))
 server.serve_forever()
 CardReader.reader()
 
