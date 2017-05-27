@@ -13,8 +13,6 @@ def check_if_emp_exists(read_id):
         return False
 
 
-
-
 def add_employee(params):
     name = params['name']
     entry_id = params['entry_id']
