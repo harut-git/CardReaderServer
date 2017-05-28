@@ -14,16 +14,26 @@ def check_if_emp_exists(read_id):
 
 
 def add_employee(params):
-    name = params['name']
-    entry_id = params['entry_id']
     img_url = params['img_url']
-    group = params['group']
+    entry_id = params['entry_id']
+    name = params['name']
+    sur_name = params['surname']
     position = params['position']
+    group = params['group']
     start_ts = params['start_ts']
     end_ts = params['end_ts']
-    cur = db_conn()
-    cur.execute("INSERT (%s, %s, %s, %s, %s, %s, %s) INTO ") % (
-    name, entry_id, img_url, group, position, start_ts, end_ts)
+    comment = params['comment']
+    con = db_conn()
+    con.set_character_set('utf8')
+    cur = con.cursor()
+    cur.execute("INSERT INTO employees VALUES (NULL, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (img_url,
+                                                                                                         entry_id, name,
+                                                                                                         sur_name,
+                                                                                                         position,
+                                                                                                         group,
+                                                                                                         start_ts,
+                                                                                                         end_ts,
+                                                                                                         comment))
 
 
 def update_employee(params):
