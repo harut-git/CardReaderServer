@@ -1,18 +1,13 @@
 import json
 import os
-import re
 os.environ.pop('GEVENT_LOOP', None)
-import serial
 
 from ws4py.server.geventserver import WSGIServer
 from ws4py.server.wsgiutils import WebSocketWSGIApplication
 from ws4py.websocket import WebSocket
 
-import CardReader
-from socket_commands import check_if_emp_exists
 
-
-available_commands = ["add_employee", "update_employee", "get_employees", "get_logs"]
+available_commands = ["add_employee", "update_employee", "get_employees", "get_logs", "listen_reader"]
 
 
 class MyWebSocket(WebSocket):
@@ -41,5 +36,5 @@ class MyWebSocket(WebSocket):
         self.send(json.dumps(response), message.is_binary)
 
 
-server = WSGIServer(('localhost', 8989), WebSocketWSGIApplication(handler_cls=MyWebSocket))
+server = WSGIServer(('0.0.0.0', 8787), WebSocketWSGIApplication(handler_cls=MyWebSocket))
 server.serve_forever()
