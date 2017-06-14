@@ -1,59 +1,41 @@
 import sys
-import serial
-import re, itertools
-import _winreg as winreg
-from PyQt4 import QtCore, QtGui
-from datalogger_gui import Ui_Form
 
-global ser, num, serportnum, comports
-comports = []
+from PyQt5.QtWidgets import QWidget, QApplication, QPushButton
+from PyQt5.QtCore import QObject, pyqtSlot, QIODevice, pyqtSignal
+from PyQt5.QtSerialPort import QSerialPort
+
+PORT = 'COM59'
 
 
-class MyForm(QtGui.QMainWindow):
-    def __init__(self, parent=None):
-        QtGui.QWidget.__init__(self, parent)
-        self.ui = Ui_Form()
-        self.ui.setupUi(self)
-        QtCore.QObject.connect(self.ui.scan, QtCore.SIGNAL("clicked()"), self.enumerate_serial_ports)
-        QtCore.QObject.connect(self.ui.connect, QtCore.SIGNAL("clicked()"), self.connect_to_port)
-        QtCore.QObject.connect(self.ui.disconnect, QtCore.SIGNAL("clicked()"), self.disconnect_from_port)
-        QtCore.QObject.connect(self.ui.comdropdown, QtCore.SIGNAL('activated(int)'), self.connect_to_port)
-        # QtCore.QObject.connect(self.ui.comdropdown, QtCore.SIGNAL('activated(int)'),self.set_baudrate)
+class DVIFlasher(QObject):
+    ser = None
+    flash_done = pyqtSignal(int, int)
 
-    def disconnect_from_port(self):
-        ser.close()
+    def __init__(self):
+        super(DVIFlasher, self).__init__()
+        self.ser = QSerialPort(PORT)
+        self.ser.readyRead.connect(self.read)
 
-    def enumerate_serial_ports(self):
+    def flash(self):
+        print(self.ser.open(QIODevice.ReadWrite))
+        self.ser.setBaudRate(115200)
 
-        path = 'HARDWARE\\DEVICEMAP\\SERIALCOMM'
-        try:
-            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, path)
-        except WindowsError:
-            raise IterationError
-        # self.ui.statustextEdit.append('ports')
-        for i in itertools.count():
-            try:
-                val = winreg.EnumValue(key, i)
-                self.ui.statustextEdit.append(str(val[1]))
-                comports.append(str(val[1]))
-            except EnvironmentError:
-                break
-        self.ui.comdropdown.addItems(comports)
-        BAUDRATES = list()
-        BAUDRATES = [50, 75, 110, 134, 150, 200, 300, 600, 1200, 1800, 2400, 4800,
-                     9600, 19200, 38400, 57600, 115200]
-        self.ui.bauddropdown.addItems(BAUDRATES)
-
-    # def set_baudrate(self,baud):
-    def connect_to_port(self, num):
-        portno = comports(num)
-        ser = serial.Serial(portno, 1200, timeout=0)
-        self.ui.statustextEdit.append('connected')
-        self.ui.statustextEdit.append(str(num))
+    def read(self):
+        print("Got data")
+        self.ser.close()
+        self.flash_done.emit(0, 0)
 
 
-if __name__ == "__main__":
-    app = QtGui.QApplication(sys.argv)
-    myapp = MyForm()
-    myapp.show()
+class Widget(QWidget):
+    def __init__(self):
+        super(Widget, self).__init__()
+        self.btn = QPushButton("Start", self)
+        self.flasher = DVIFlasher()
+        self.btn.clicked.connect(self.flasher.flash)
+        self.resize(self.btn.sizeHint())
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    win = Widget()
+    win.show()
     sys.exit(app.exec_())
