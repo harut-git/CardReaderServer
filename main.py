@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-# from DbConnect import db_conn
+from DbConnect import db_conn
 import sys
 from PyQt5.QtCore import pyqtSlot
 from shutil import copyfile
@@ -156,25 +156,25 @@ class MainDialog(QtWidgets.QDialog):
     def save(self):
         new_url = "images/" + self.entry_id.text() + '.jpg'
         copyfile(self.file_path[0], new_url)
-
-                # try:
-                #     con = db_conn()
-                #     con.set_character_set('utf8')
-                #     cur = con.cursor()
-                #     cur.execute(
-                #         "INSERT INTO employees VALUES (NULL, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (
-                #             new_url,
-                #             self.entry_id.text(),
-                #             self.name.text(),
-                #             self.sur_name.text(),
-                #             self.position.text(),
-                #             self.group.text(),
-                #             self.start_time.text(),
-                #             self.end_time.text(),
-                #             self.comment.text()))
-                # except Exception as e:
-                #     print(e)
-
+        try:
+            con = db_conn()
+            con.set_charset('utf8')
+            cur = con.cursor()
+            cur.execute(
+                "INSERT INTO employees VALUES (NULL, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (
+                    new_url,
+                    self.entry_id.text(),
+                    self.name.text(),
+                    self.surname.text(),
+                    self.position.text(),
+                    self.group.text(),
+                    self.start_time.text(),
+                    self.end_time.text(),
+                    self.comment.text()))
+            con.close()
+        except Exception as e:
+            print(e.args)
+        self.close()
     @pyqtSlot(name='browse')
     def SingleBrowse(self):
         self.file_path = QtWidgets.QFileDialog.getOpenFileName(QtWidgets.QFileDialog(), filter='*.jpg')
